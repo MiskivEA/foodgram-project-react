@@ -1,16 +1,16 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.db import models
 
-from foodgram import settings
 
-User = settings.AUTH_USER_MODEL
+User = get_user_model()
 
 
 class Recipe(models.Model):
     """Рецепт"""
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
-                               related_name='recipe')
+                               related_name='recipes')
 
     name = models.CharField(max_length=200,
                             verbose_name='Название')
@@ -18,7 +18,7 @@ class Recipe(models.Model):
     image = models.BinaryField(max_length=None)
     text = models.TextField(max_length=None)
     ingredients = models.ManyToManyField('Ingredient',
-                                         related_name='ingredients')
+                                         related_name='recipes')
 
 
 class Tag(models.Model):
@@ -35,7 +35,8 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Ингридиент"""
+    """Ингридиент
+    Название и единица меры"""
     name = models.CharField(max_length=200)
     measurement_unit = models.CharField(max_length=200)
 
@@ -48,7 +49,7 @@ class Cart(models.Model):
                                 related_name='carts')
     owner = models.ForeignKey(User,
                               on_delete=models.CASCADE,
-                              related_name='users')
+                              related_name='carts')
 
 
 class Follow(models.Model):
