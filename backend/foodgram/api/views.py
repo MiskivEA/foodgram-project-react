@@ -1,4 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from api.serializers import *
 from app.models import *
@@ -7,6 +9,7 @@ from app.models import *
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = permissions.AllowAny,
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -32,8 +35,3 @@ class FollowViewSet(viewsets.ModelViewSet):
 class FavoriteRecipesViewSet(viewsets.ModelViewSet):
     queryset = FavoriteRecipes.objects.all()
     serializer_class = FavoriteRecipesSerializer
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer

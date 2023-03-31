@@ -20,6 +20,9 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField('Ingredient',
                                          related_name='recipes')
 
+    def __str__(self):
+        return self.name
+
 
 class Tag(models.Model):
     """Тэг"""
@@ -33,12 +36,18 @@ class Tag(models.Model):
                                 regex='^[-a-zA-Z0-9_]+$')]
                             )
 
+    def __str__(self):
+        return self.color
+
 
 class Ingredient(models.Model):
     """Ингридиент
     Название и единица меры"""
     name = models.CharField(max_length=200)
     measurement_unit = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 
 class Cart(models.Model):
@@ -50,6 +59,9 @@ class Cart(models.Model):
     owner = models.ForeignKey(User,
                               on_delete=models.CASCADE,
                               related_name='carts')
+
+    def __str__(self):
+        return f'{self.owner}:{self.name}'
 
 
 class Follow(models.Model):
