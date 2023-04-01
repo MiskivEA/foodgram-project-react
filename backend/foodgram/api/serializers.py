@@ -1,19 +1,31 @@
 from django.contrib.auth import get_user_model
-from djoser.conf import settings
+
 from rest_framework import serializers
 from djoser.serializers import (UserSerializer as BaseUserSerializer,
                                 UserCreateSerializer as BaseUserCreateSerializer,
                                 SetPasswordSerializer as BaseSetPasswordSerializer,
                                 TokenCreateSerializer as BaseTokenCreateSerializer)
-from app.models import Recipe, Tag, Ingredient, Cart, Follow, FavoriteRecipes
+from app.models import Recipe, Tag, Ingredient, Cart, Follow, FavoriteRecipes, IngredientsAmount
 
 User = get_user_model()
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = Recipe
+        model = Ingredient
         fields = '__all__'
+
+
+class IngredientsAmountSerializer(serializers.ModelSerializer):
+    ingredient = IngredientSerializer()
+
+    class Meta:
+        model = IngredientsAmount
+        fields = (
+            'ingredient',
+            'amount'
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -22,10 +34,20 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class IngredientSerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer):
+    ingredients = IngredientsAmountSerializer(many=True)
+    tag = TagSerializer(many=True)
+
     class Meta:
-        model = Ingredient
-        fields = '__all__'
+        model = Recipe
+        fields = (
+            'author',
+            'name',
+            'image',
+            'text',
+            'ingredients',
+            'tag'
+        )
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -63,7 +85,5 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 
 
 class SetPasswordSerializer(BaseSetPasswordSerializer):
-
     class Meta():
         fields = ['new_password', 'current_password']
-

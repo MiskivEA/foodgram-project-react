@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.db import models
 
-
 User = get_user_model()
 
 
@@ -17,8 +16,10 @@ class Recipe(models.Model):
 
     image = models.BinaryField(max_length=None)
     text = models.TextField(max_length=None)
-    ingredients = models.ManyToManyField('Ingredient',
+    ingredients = models.ManyToManyField('IngredientsAmount',
                                          related_name='recipes')
+    tag = models.ManyToManyField('Tag',
+                                 related_name='recipes')
 
     def __str__(self):
         return self.name
@@ -48,6 +49,17 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class IngredientsAmount(models.Model):
+    ingredient = models.OneToOneField('Ingredient',
+                                      on_delete=models.CASCADE,
+                                      )
+
+    amount = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.ingredient.name}: {self.amount} {self.ingredient.measurement_unit}'
 
 
 class Cart(models.Model):

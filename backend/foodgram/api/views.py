@@ -19,7 +19,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
+    serializer_class = IngredientsAmountSerializer
 
 
 class CartViewSet(viewsets.ModelViewSet):
