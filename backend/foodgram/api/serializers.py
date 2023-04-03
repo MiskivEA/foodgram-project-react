@@ -18,6 +18,8 @@ class UserSerializer(BaseUserSerializer):
 
     def get_is_subscribed(self, obj):
         current_user = self.context['request'].user
+        if self.context['request'].user.is_anonymous:
+            return False
         return Follow.objects.filter(user=current_user, author=obj).exists()
 
 
@@ -77,18 +79,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time'
         )
 
-
-class RecipeSerializerForCart(serializers.ModelSerializer):
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'id',
-            'name',
-            'image',
-            'cooking_time'
-        )
-
     def is_no_authenticated(self):
         return self.context['request'].user.is_anonymous
 
@@ -104,6 +94,20 @@ class RecipeSerializerForCart(serializers.ModelSerializer):
         if self.is_no_authenticated():
             return False
         return Cart.objects.filter(owner=self.get_user(), recipe=obj).exists()
+
+
+class RecipeSerializerForCart(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
 
 
 class CartSerializer(serializers.ModelSerializer):

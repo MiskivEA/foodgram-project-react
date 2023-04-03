@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -29,7 +29,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = Recipe.objects.get(pk=pk)
 
         if request.method == 'POST':
-            Cart.objects.get_or_create(recipe=recipe, owner=user)
+            _, created = Cart.objects.get_or_create(recipe=recipe, owner=user)
+            if not created:
+                return Response({'errors': 'Ошибка добавления в список покупок(уже добавлено)'}, status=status.HTTP_400_BAD_REQUEST)
             serializer = RecipeSerializerForCart(recipe, many=False)
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
@@ -37,7 +39,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 Cart.objects.get(recipe=recipe, owner=user).delete()
                 return Response(status=status.HTTP_200_OK)
             except Exception as e:
-                return Response({'errors': f'{e}'})
+                return Response({'errors': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['get'],
+            detail=False)
+    def download_shopping_cart(self, request):
+        user = request.user
+        user_cart_queryset = user.carts.all()
+        serializer = CartSerializer(user_cart_queryset, many=True)
+        return FileResponse(serializer.data)
+
+
 
 
 class TagViewSet(viewsets.ModelViewSet):
