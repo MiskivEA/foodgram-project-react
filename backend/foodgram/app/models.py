@@ -20,9 +20,10 @@ class Recipe(models.Model):
                                          related_name='recipes')
     tag = models.ManyToManyField('Tag',
                                  related_name='recipes')
+    cooking_time = models.IntegerField()
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 
 class Tag(models.Model):
@@ -64,13 +65,17 @@ class IngredientsAmount(models.Model):
 
 class Cart(models.Model):
     """Корзина"""
-    name = models.CharField(max_length=200)
-    recipes = models.ForeignKey(Recipe,
-                                on_delete=models.CASCADE,
-                                related_name='carts')
+    name = models.CharField(max_length=200,
+                            blank=True)
+    recipe = models.ForeignKey(Recipe,
+                               on_delete=models.CASCADE,
+                               related_name='carts')
     owner = models.ForeignKey(User,
                               on_delete=models.CASCADE,
                               related_name='carts')
+
+    class Meta():
+        unique_together = ('recipe', 'owner')
 
     def __str__(self):
         return f'{self.owner}:{self.name}'
@@ -100,3 +105,6 @@ class FavoriteRecipes(models.Model):
                              on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'Пользователь: {self.user} Избранный рецепт: {self.recipe}'
