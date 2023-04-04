@@ -5,11 +5,13 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from djoser.views import UserViewSet as BaseUserViewSet
 
-from api.serializers import (RecipeSerializer, CartSerializer,
-                             TagSerializer, IngredientsAmountSerializer,
-                             FollowSerializer, FavoriteRecipesSerializer,
-                             RecipeSerializerForCart)
+from api.serializers import (RecipeSerializer,
+                             TagSerializer,
+                             FavoriteRecipesSerializer,
+                             RecipeSerializerForCart, RecipeSerializerWrite, IngredientSerializer)
 from app.models import *
+from users.models import Follow
+from users.serializers import FollowSerializer
 
 
 class CustomPaginationClass(PageNumberPagination):
@@ -18,9 +20,15 @@ class CustomPaginationClass(PageNumberPagination):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     permission_classes = permissions.AllowAny,
     pagination_class = CustomPaginationClass
+    serializer_class = RecipeSerializer
+
+    # def get_serializer_class(self):
+    #     if self.request.method == 'GET':
+    #         return RecipeSerializer
+    #     elif self.request.method == 'POST':
+    #         return RecipeSerializer
 
     @action(methods=['post', 'delete'],
             detail=True)
@@ -46,10 +54,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         user_cart_queryset = user.carts.all()
-        serializer = CartSerializer(user_cart_queryset, many=True)
-        return FileResponse(serializer.data)
-
-
+        print(list(user_cart_queryset.values()))
+        return Response(status=status.HTTP_200_OK)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -59,7 +65,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
-    serializer_class = IngredientsAmountSerializer
+    serializer_class = IngredientSerializer
 
 
 class FollowViewSet(viewsets.ModelViewSet):

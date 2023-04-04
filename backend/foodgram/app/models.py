@@ -16,7 +16,7 @@ class Recipe(models.Model):
 
     image = models.BinaryField(max_length=None)
     text = models.TextField(max_length=None)
-    ingredients = models.ManyToManyField('IngredientsAmount',
+    ingredients = models.ManyToManyField('IngredientRecipe',
                                          related_name='recipes')
     tag = models.ManyToManyField('Tag',
                                  related_name='recipes')
@@ -39,28 +39,40 @@ class Tag(models.Model):
                             )
 
     def __str__(self):
-        return self.color
+        return self.slug
 
 
-class Ingredient(models.Model):
-    """Ингридиент
-    Название и единица меры"""
-    name = models.CharField(max_length=200)
+class MeasurementUnit(models.Model):
     measurement_unit = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.name
+        return f'{self.measurement_unit}'
 
 
-class IngredientsAmount(models.Model):
-    ingredient = models.OneToOneField('Ingredient',
-                                      on_delete=models.CASCADE,
-                                      )
+class Ingredient(models.Model):
+    name = models.CharField(max_length=200)
+    measurement_unit = models.ForeignKey(MeasurementUnit, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.name} ({self.measurement_unit})'
+
+
+class Amount(models.Model):
     amount = models.IntegerField()
 
     def __str__(self):
-        return f'{self.ingredient.name}: {self.amount} {self.ingredient.measurement_unit}'
+        return f'{self.amount}'
+
+
+class IngredientRecipe(models.Model):
+    """Ингридиент
+    Название и единица меры"""
+    name = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    measurement_unit = models.ForeignKey(MeasurementUnit, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.name}:  {self.amount} {self.measurement_unit}'
 
 
 class Cart(models.Model):
@@ -79,23 +91,6 @@ class Cart(models.Model):
 
     def __str__(self):
         return f'{self.owner}:{self.name}'
-
-
-class Follow(models.Model):
-    """Подписки пользователей друг на друга"""
-    user = models.ForeignKey(
-        User,
-        related_name='followers',
-        on_delete=models.CASCADE
-    )
-    author = models.ForeignKey(
-        User,
-        related_name='followings',
-        on_delete=models.CASCADE
-    )
-
-    def __str__(self):
-        return f'{self.user} > подписан на > {self.author}'
 
 
 class FavoriteRecipes(models.Model):

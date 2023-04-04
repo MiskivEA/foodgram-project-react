@@ -127,10 +127,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.AllowAny',
-    # ],
-    #
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
@@ -139,10 +139,10 @@ REST_FRAMEWORK = {
 
 DJOSER = {
     "SERIALIZERS": {
-        'user_create': 'api.serializers.UserCreateSerializer',
-        'user': 'api.serializers.UserSerializer',
-        'current_user': 'api.serializers.UserSerializer',
-        'set_password': 'api.serializers.SetPasswordSerializer',
+        'user_create': 'users.serializers.UserCreateSerializer',
+        'user': 'users.serializers.UserSerializer',
+        'current_user': 'users.serializers.UserSerializer',
+        'set_password': 'users.serializers.SetPasswordSerializer',
     },
 
 

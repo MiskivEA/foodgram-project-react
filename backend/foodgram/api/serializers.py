@@ -1,54 +1,34 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
-from djoser.serializers import (UserSerializer as BaseUserSerializer,
-                                UserCreateSerializer as BaseUserCreateSerializer,
-                                SetPasswordSerializer as BaseSetPasswordSerializer,
-                                )
-from app.models import Recipe, Tag, Ingredient, Cart, Follow, FavoriteRecipes, IngredientsAmount
+
+from app.models import Recipe, Tag, Ingredient, Cart, FavoriteRecipes, IngredientRecipe
+from users.serializers import UserSerializer
 
 User = get_user_model()
 
 
-class UserSerializer(BaseUserSerializer):
-    is_subscribed = serializers.SerializerMethodField()
-
-    class Meta(BaseUserSerializer.Meta):
-        fields = ['email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed']
-
-    def get_is_subscribed(self, obj):
-        current_user = self.context['request'].user
-        if self.context['request'].user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=current_user, author=obj).exists()
-
-
-class UserCreateSerializer(BaseUserCreateSerializer):
-    class Meta(BaseUserCreateSerializer.Meta):
-        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'password']
-
-
-class SetPasswordSerializer(BaseSetPasswordSerializer):
-    class Meta():
-        fields = ['new_password', 'current_password']
-
-
 class IngredientSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Ingredient
         fields = '__all__'
 
 
-class IngredientsAmountSerializer(serializers.ModelSerializer):
-    ingredient = IngredientSerializer()
+class IngredientRecipeSerializer(serializers.ModelSerializer):
+    name = serializers.SlugRelatedField(queryset=Ingredient.objects.all(),
+                                        slug_field='name')
+    measurement_unit = serializers.SlugRelatedField(queryset=Ingredient.objects.all(),
+                                                    slug_field='measurement_unit')
 
     class Meta:
-        model = IngredientsAmount
-        fields = (
-            'ingredient',
-            'amount'
-        )
+        model = IngredientRecipe
+        fields = ('id', 'name', 'measurement_unit', 'amount')
+
+
+class IngredientRecipeSerializerWriteRecipe(serializers.ModelSerializer):
+    class Meta:
+        model = IngredientRecipe
+        fields = ('id', 'name')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -58,8 +38,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    ingredients = IngredientsAmountSerializer(many=True)
-    tags = TagSerializer(many=True, source='tag')
+    ingredients = IngredientRecipeSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, source='tag', read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     author = UserSerializer()
@@ -96,8 +76,23 @@ class RecipeSerializer(serializers.ModelSerializer):
         return Cart.objects.filter(owner=self.get_user(), recipe=obj).exists()
 
 
-class RecipeSerializerForCart(serializers.ModelSerializer):
+class RecipeSerializerWrite(serializers.ModelSerializer):
+    ingredients = IngredientRecipeSerializerWriteRecipe(many=True)
+    tags = serializers.PrimaryKeyRelatedField(many=True, source='tag', queryset=Tag.objects.all())
 
+    class Meta:
+        model = Recipe
+        fields = (
+            'ingredients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
+        )
+
+
+class RecipeSerializerForCart(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
@@ -106,8 +101,6 @@ class RecipeSerializerForCart(serializers.ModelSerializer):
             'image',
             'cooking_time'
         )
-
-
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -119,15 +112,7 @@ class CartSerializer(serializers.ModelSerializer):
         )
 
 
-class FollowSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Follow
-        fields = '__all__'
-
-
 class FavoriteRecipesSerializer(serializers.ModelSerializer):
     class Meta:
         model = FavoriteRecipes
         fields = '__all__'
-
-
