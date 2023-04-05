@@ -16,7 +16,7 @@ class Recipe(models.Model):
 
     image = models.BinaryField(max_length=None)
     text = models.TextField(max_length=None)
-    ingredients = models.ManyToManyField('IngredientRecipe',
+    ingredients = models.ManyToManyField('IngredientAmount',
                                          related_name='recipes')
     tag = models.ManyToManyField('Tag',
                                  related_name='recipes')
@@ -42,37 +42,25 @@ class Tag(models.Model):
         return self.slug
 
 
-class MeasurementUnit(models.Model):
-    measurement_unit = models.CharField(max_length=200)
-
-    def __str__(self):
-        return f'{self.measurement_unit}'
-
-
 class Ingredient(models.Model):
+    """Модель ингридинета
+    Включает название и в чем измеряется его количество"""
+
     name = models.CharField(max_length=200)
-    measurement_unit = models.ForeignKey(MeasurementUnit, on_delete=models.CASCADE)
+    measurement_unit = models.CharField(max_length=200)
 
     def __str__(self):
         return f'{self.name} ({self.measurement_unit})'
 
 
-class Amount(models.Model):
-    amount = models.IntegerField()
-
-    def __str__(self):
-        return f'{self.amount}'
-
-
-class IngredientRecipe(models.Model):
+class IngredientAmount(models.Model):
     """Ингридиент
-    Название и единица меры"""
+    Название и количество в рецепте"""
     name = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     amount = models.IntegerField()
-    measurement_unit = models.ForeignKey(MeasurementUnit, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.name}:  {self.amount} {self.measurement_unit}'
+        return f' {self.name}:  {self.amount}'
 
 
 class Cart(models.Model):

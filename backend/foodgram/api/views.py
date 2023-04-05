@@ -8,7 +8,10 @@ from djoser.views import UserViewSet as BaseUserViewSet
 from api.serializers import (RecipeSerializer,
                              TagSerializer,
                              FavoriteRecipesSerializer,
-                             RecipeSerializerForCart, RecipeSerializerWrite, IngredientSerializer)
+                             RecipeSerializerForCart, RecipeSerializerWrite, IngredientSerializer,
+                             IngredientAmountSerializer, )
+                             #IngredientRecipeSerializerWrite
+
 from app.models import *
 from users.models import Follow
 from users.serializers import FollowSerializer
@@ -18,17 +21,34 @@ class CustomPaginationClass(PageNumberPagination):
     page_size = 5
 
 
+class IngredientRecipeViewSet(viewsets.ModelViewSet):
+    queryset = IngredientAmount.objects.all()
+    permission_classes = permissions.AllowAny,
+    pagination_class = CustomPaginationClass
+    serializer_class = IngredientAmountSerializer
+
+    # def get_serializer_class(self):
+    #     if self.request.method == 'GET':
+    #         return IngredientRecipeSerializer
+    #     elif self.request.method in ['POST', 'PUT', 'PATCH']:
+    #         return IngredientRecipeSerializerWrite
+    #     else:
+    #         return RecipeSerializer
+
+
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = permissions.AllowAny,
     pagination_class = CustomPaginationClass
-    serializer_class = RecipeSerializer
 
-    # def get_serializer_class(self):
-    #     if self.request.method == 'GET':
-    #         return RecipeSerializer
-    #     elif self.request.method == 'POST':
-    #         return RecipeSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return RecipeSerializer
+        elif self.request.method in ['POST', 'PUT', 'PATCH']:
+            return RecipeSerializerWrite
+        else:
+            return RecipeSerializer
+
 
     @action(methods=['post', 'delete'],
             detail=True)
