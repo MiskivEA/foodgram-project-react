@@ -14,44 +14,30 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class IngredientAmountSerializer(serializers.ModelSerializer):
-    name = serializers.SlugRelatedField(queryset=Ingredient.objects.all(),
-                                        slug_field='name', required=False)
-
-    measurement_unit = serializers.SerializerMethodField()
-
-    class Meta:
-        model = IngredientAmount
-        fields = ('id', 'name', 'measurement_unit', 'amount')
-
-    def get_measurement_unit(self, obj):
-        # print(obj.name.name)
-        ms = Ingredient.objects.filter(name=obj.name.name).first()
-        # print(ms)
-        return ms.measurement_unit
-
-
-# class IngredientRecipeSerializerWrite(serializers.Serializer):
-#     id = serializers.IntegerField()
-#     amount = serializers.IntegerField(required=True)
-#
-#     def create(self, validated_data):
-#         ingredient_id = validated_data['id']
-#         ingredient = Ingredient.objects.get(pk=ingredient_id)
-#         measurement_unit = MeasurementUnit.objects.get()
-#         print(ingredient.name, ingredient.measurement_unit, validated_data['amount'], sep='\n')
-#
-#         return IngredientRecipe.objects.create(
-#             name=ingredient,
-#             measurement_unit=ingredient.measurement_unit,
-#             amount=validated_data['amount']
-#         )
-
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
+
+
+class IngredientAmountSerializer(serializers.ModelSerializer):
+    name = serializers.SlugRelatedField(queryset=Ingredient.objects.all(),
+                                        slug_field='name')
+    measurement_unit = serializers.SerializerMethodField()
+
+    class Meta:
+        model = IngredientAmount
+        fields = ('name', 'measurement_unit', 'amount')
+
+    def get_measurement_unit(self, obj):
+        return Ingredient.objects.get(name=obj.name.name).measurement_unit
+
+
+class IngredientAmountSerializerWrite(IngredientAmountSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(), source='name')
+
+    class Meta(IngredientAmountSerializer.Meta):
+        fields = ('id', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -94,7 +80,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializerWrite(serializers.ModelSerializer):
-    ingredients = IngredientAmountSerializer(many=True)
+    ingredients = IngredientAmountSerializerWrite(many=True)
     tags = serializers.PrimaryKeyRelatedField(many=True, source='tag', queryset=Tag.objects.all())
 
     class Meta:
@@ -107,6 +93,23 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
             'text',
             'cooking_time'
         )
+
+    def create(self, validated_data):
+        current_user = self.context['request'].user
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tag')
+        recipe = Recipe.objects.create(author=current_user, **validated_data)
+
+        for ingredient in ingredients_data:
+            ing, _ = IngredientAmount.objects.get_or_create(
+                **ingredient
+            )
+
+            recipe.ingredients.add(ing)
+        for tag in tags_data:
+            recipe.tag.add(tag)
+
+        return recipe
 
 
 class RecipeSerializerForCart(serializers.ModelSerializer):

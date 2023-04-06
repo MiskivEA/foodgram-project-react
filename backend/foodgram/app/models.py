@@ -17,9 +17,11 @@ class Recipe(models.Model):
     image = models.BinaryField(max_length=None)
     text = models.TextField(max_length=None)
     ingredients = models.ManyToManyField('IngredientAmount',
-                                         related_name='recipes')
+                                         related_name='recipes',
+                                         blank=True)
     tag = models.ManyToManyField('Tag',
-                                 related_name='recipes')
+                                 related_name='recipes',
+                                 blank=True)
     cooking_time = models.IntegerField()
 
     def __str__(self):
@@ -56,7 +58,7 @@ class Ingredient(models.Model):
 class IngredientAmount(models.Model):
     """Ингридиент
     Название и количество в рецепте"""
-    name = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    name = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='ingredients')
     amount = models.IntegerField()
 
     def __str__(self):

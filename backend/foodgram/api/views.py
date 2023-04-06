@@ -21,11 +21,11 @@ class CustomPaginationClass(PageNumberPagination):
     page_size = 5
 
 
-class IngredientRecipeViewSet(viewsets.ModelViewSet):
-    queryset = IngredientAmount.objects.all()
-    permission_classes = permissions.AllowAny,
-    pagination_class = CustomPaginationClass
-    serializer_class = IngredientAmountSerializer
+# class IngredientRecipeViewSet(viewsets.ModelViewSet):
+#     queryset = IngredientAmount.objects.all()
+#     permission_classes = permissions.AllowAny,
+#     pagination_class = CustomPaginationClass
+#     serializer_class = IngredientAmountSerializer
 
     # def get_serializer_class(self):
     #     if self.request.method == 'GET':
