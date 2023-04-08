@@ -5,6 +5,8 @@ from djoser.serializers import (UserSerializer as BaseUserSerializer,
                                 UserCreateSerializer as BaseUserCreateSerializer,
                                 SetPasswordSerializer as BaseSetPasswordSerializer,
                                 )
+
+from app.models import Recipe
 from users.models import Follow
 
 User = get_user_model()
@@ -17,15 +19,40 @@ class UserSerializer(BaseUserSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        current_user = self.context['request'].user
-        if self.context['request'].user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=current_user, author=obj).exists()
+        # if self.context.get('request').user.is_anonymous:
+        #     return False
+        # current_user = self.context.get('request').user
+        # return Follow.objects.filter(user=current_user, author=obj).exists()
+        return False
 
 
 class UserCreateSerializer(BaseUserCreateSerializer):
     class Meta(BaseUserCreateSerializer.Meta):
         fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password')
+
+
+class RecipeSerializerSubs(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
+
+
+class UserSerializerSubscribe(UserSerializer):
+    """Сериализатор пользователя для подписок (read only)"""
+    recipe_count = serializers.SerializerMethodField()
+    recipes = RecipeSerializerSubs(read_only=True, many=True)
+
+    class Meta(UserSerializer.Meta):
+        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'recipes', 'recipe_count')
+
+    def get_recipe_count(self, obj):
+        return obj.recipes.all().count()
 
 
 class SetPasswordSerializer(BaseSetPasswordSerializer):
