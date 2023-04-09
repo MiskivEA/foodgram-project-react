@@ -19,11 +19,11 @@ class UserSerializer(BaseUserSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
-        # if self.context.get('request').user.is_anonymous:
-        #     return False
-        # current_user = self.context.get('request').user
-        # return Follow.objects.filter(user=current_user, author=obj).exists()
-        return False
+        current_user = self.context.get('request').user
+        if current_user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=current_user, author=obj).exists()
+
 
 
 class UserCreateSerializer(BaseUserCreateSerializer):

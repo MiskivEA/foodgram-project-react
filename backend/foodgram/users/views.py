@@ -38,15 +38,17 @@ class UserViewSet(BaseUserViewSet):
         user = request.user
         id_user_to_follow = kwargs['id']
         author = get_object_or_404(User, pk=id_user_to_follow)
-        serializer = UserSerializerSubscribe(author)
+        serializer = UserSerializerSubscribe(author, context={'request': request})
 
         if request.method == 'POST':
-            follow_obj, flag_created = Follow.objects.get_or_create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            follow_obj, created = Follow.objects.get_or_create(user=user, author=author)
+            if created:
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'error': 'Ошибка подписки'}, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
             get_object_or_404(Follow, user=user, author=author).delete()
-            return Response({f'Вы отписались от пользователя {author.email}'}, status=status.HTTP_200_OK)
+            return Response({f'Вы отписались от пользователя {author.email}'}, status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
