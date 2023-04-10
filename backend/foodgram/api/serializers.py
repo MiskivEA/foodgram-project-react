@@ -60,7 +60,8 @@ class RecipeSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'text',
-            'cooking_time'
+            'cooking_time',
+            'pub_date'
         )
 
     def is_no_authenticated(self):

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.db import models
@@ -23,6 +25,7 @@ class Recipe(models.Model):
                                  related_name='recipes',
                                  blank=True)
     cooking_time = models.IntegerField()
+    pub_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -80,7 +83,7 @@ class Cart(models.Model):
         unique_together = ('recipe', 'owner')
 
     def __str__(self):
-        return f'{self.owner}:{self.name}'
+        return f'{self.owner}:{self.recipe}'
 
 
 class FavoriteRecipes(models.Model):

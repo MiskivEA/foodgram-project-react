@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse, FileResponse
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -7,10 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from djoser.views import UserViewSet as BaseUserViewSet
 
-
 from users.models import Follow
-from users.serializers import FollowSerializer, UserSerializer, UserSerializerSubscribe
-
+from users.serializers import UserSerializer, UserSerializerSubscribe
 
 User = get_user_model()
 
@@ -50,5 +47,3 @@ class UserViewSet(BaseUserViewSet):
             get_object_or_404(Follow, user=user, author=author).delete()
             return Response({f'Вы отписались от пользователя {author.email}'}, status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
