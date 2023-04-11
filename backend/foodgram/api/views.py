@@ -85,27 +85,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         return response
 
+    @action(methods=['post', 'delete'],
+            detail=True)
+    def favorite(self, request, pk):
+        """Добавление рецепта в избранные рецепты"""
+        user = request.user
+        recipe = Recipe.objects.get(pk=pk)
+        if request.method == 'POST':
+            favorite, is_created = FavoriteRecipes.objects.get_or_create(
+                user=user, recipe=recipe)
+            if is_created:
+                count = FavoriteRecipes.objects.filter(recipe=recipe).count()
+                recipe.how_mach_time_add_to_favorite = count
+                recipe.save()
 
-@action(methods=['post', 'delete'],
-        detail=True)
-def favorite(self, request, pk):
-    """Добавление рецепта в избранные рецепты"""
-    user = request.user
-    recipe = Recipe.objects.get(pk=pk)
-    if request.method == 'POST':
-        favorite, is_created = FavoriteRecipes.objects.get_or_create(
-            user=user, recipe=recipe)
-        if is_created:
-            serializer = RecipeSerializerForCart(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response({'error': 'The Recipe is already in your favorites list'})
-    elif request.method == 'DELETE':
-        try:
-            FavoriteRecipes.objects.get(user=user, recipe=recipe).delete()
-            return Response(status.HTTP_200_OK)
-        except Exception as e:
-            return Response({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
-    return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+                serializer = RecipeSerializerForCart(recipe)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'error': 'The Recipe is already in your favorites list'})
+        elif request.method == 'DELETE':
+            try:
+                FavoriteRecipes.objects.get(user=user, recipe=recipe).delete()
+                count = FavoriteRecipes.objects.filter(recipe=recipe).count()
+                recipe.how_mach_time_add_to_favorite = count
+                recipe.save()
+                return Response(status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TagViewSet(viewsets.ModelViewSet):

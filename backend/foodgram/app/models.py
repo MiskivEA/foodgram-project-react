@@ -26,6 +26,7 @@ class Recipe(models.Model):
                                  blank=True)
     cooking_time = models.IntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
+    how_mach_time_add_to_favorite = models.IntegerField(default=0)
 
     def __str__(self):
         return f'{self.name}'

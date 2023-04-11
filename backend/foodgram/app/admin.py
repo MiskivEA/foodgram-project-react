@@ -13,6 +13,14 @@ from users.models import Follow
 User = get_user_model()
 
 
+class UserAdmin(admin.ModelAdmin):
+    list_filter = 'email', 'username'
+
+
+class RecipeAdmin(admin.ModelAdmin):
+    list_filter = 'name', 'author', 'tag'
+
+
 class IngredientResource(resources.ModelResource):
 
     class Meta():
@@ -24,12 +32,12 @@ class IngredientAdmin(ImportExportActionModelAdmin):
     resource_class = IngredientResource
 
 
-admin.site.register(Recipe)
+admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(IngredientAmount)
 admin.site.register(Cart)
 admin.site.register(Follow)
 admin.site.register(FavoriteRecipes)
-admin.site.register(User)
+admin.site.register(User, UserAdmin)
 
