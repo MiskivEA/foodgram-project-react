@@ -16,7 +16,7 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200,
                             verbose_name='Название')
 
-    image = models.BinaryField(max_length=None, blank=True)
+    image = models.ImageField(upload_to='images/', blank=True)
     text = models.TextField(max_length=None)
     ingredients = models.ManyToManyField('IngredientAmount',
                                          related_name='recipes',

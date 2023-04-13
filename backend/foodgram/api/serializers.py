@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
+from api.custom_fields import DecodeImageToFile
 from app.models import Recipe, Tag, Ingredient, Cart, FavoriteRecipes, IngredientAmount
 
 from users.serializers import UserSerializer
@@ -64,6 +65,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'pub_date'
         )
 
+
     def is_no_authenticated(self):
         return self.context['request'].user.is_anonymous
 
@@ -84,6 +86,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 class RecipeSerializerWrite(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializerWrite(many=True)
     tags = serializers.PrimaryKeyRelatedField(many=True, source='tag', queryset=Tag.objects.all())
+    image = DecodeImageToFile()
 
     class Meta:
         model = Recipe
@@ -112,6 +115,9 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
             recipe.tag.add(tag)
 
         return recipe
+
+    def update(self, instance, validated_data):
+        pass
 
 
 class RecipeSerializerForCart(serializers.ModelSerializer):
