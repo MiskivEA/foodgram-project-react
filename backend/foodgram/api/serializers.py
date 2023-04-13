@@ -109,15 +109,36 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
             ing, _ = IngredientAmount.objects.get_or_create(
                 **ingredient
             )
-
             recipe.ingredients.add(ing)
+
         for tag in tags_data:
             recipe.tag.add(tag)
 
         return recipe
 
     def update(self, instance, validated_data):
-        pass
+        recipe = instance
+
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tag')
+        query_set_ingredients = []
+        query_set_tags = []
+
+        for ingredient in ingredients_data:
+            ing, _ = IngredientAmount.objects.get_or_create(**ingredient)
+            query_set_ingredients.append(ing)
+
+        for tag in tags_data:
+            query_set_tags.append(tag)
+
+        recipe.ingredients.set(query_set_ingredients)
+        recipe.tag.set(query_set_tags)
+        recipe.image = validated_data.get('image', recipe.image)
+        recipe.name = validated_data.get('name', recipe.name)
+        recipe.text = validated_data.get('text', recipe.text)
+        recipe.cooking_time = validated_data.get('cooking_time', recipe.cooking_time)
+        recipe.save()
+        return recipe
 
 
 class RecipeSerializerForCart(serializers.ModelSerializer):
