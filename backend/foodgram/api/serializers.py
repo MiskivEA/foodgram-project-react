@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
+from drf_extra_fields.fields import Base64ImageField
 
 from rest_framework import serializers
 
-from api.custom_fields import DecodeImageToFile
 from app.models import Recipe, Tag, Ingredient, Cart, FavoriteRecipes, IngredientAmount
 
 from users.serializers import UserSerializer
@@ -86,7 +86,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 class RecipeSerializerWrite(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializerWrite(many=True)
     tags = serializers.PrimaryKeyRelatedField(many=True, source='tag', queryset=Tag.objects.all())
-    image = DecodeImageToFile()
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
