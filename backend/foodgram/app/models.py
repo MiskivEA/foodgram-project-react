@@ -11,7 +11,8 @@ class Recipe(models.Model):
     """Рецепт"""
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
-                               related_name='recipes')
+                               related_name='recipes',
+                               verbose_name='Автор рецепта')
 
     name = models.CharField(max_length=200,
                             verbose_name='Название')
@@ -20,13 +21,19 @@ class Recipe(models.Model):
     text = models.TextField(max_length=None)
     ingredients = models.ManyToManyField('IngredientAmount',
                                          related_name='recipes',
-                                         blank=True)
+                                         blank=True,
+                                         verbose_name='Ингридиенты')
     tag = models.ManyToManyField('Tag',
                                  related_name='recipes',
                                  blank=True)
     cooking_time = models.IntegerField()
     pub_date = models.DateTimeField(auto_now_add=True)
     how_mach_time_add_to_favorite = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-pub_date']
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         return f'{self.name}'
@@ -44,6 +51,10 @@ class Tag(models.Model):
                                 regex='^[-a-zA-Z0-9_]+$')]
                             )
 
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
     def __str__(self):
         return self.slug
 
@@ -55,6 +66,10 @@ class Ingredient(models.Model):
     name = models.CharField(max_length=200)
     measurement_unit = models.CharField(max_length=200)
 
+    class Meta:
+        verbose_name = 'Ингридиент'
+        verbose_name_plural = 'Ингридиенты'
+
     def __str__(self):
         return f'{self.name} ({self.measurement_unit})'
 
@@ -65,14 +80,16 @@ class IngredientAmount(models.Model):
     name = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='ingredients')
     amount = models.IntegerField()
 
+    class Meta:
+        verbose_name = 'Ингридиент - количество'
+        verbose_name_plural = 'Ингридиент - количество'
+
     def __str__(self):
         return f' {self.name}:  {self.amount}'
 
 
 class Cart(models.Model):
     """Корзина"""
-    name = models.CharField(max_length=200,
-                            blank=True)
     recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE,
                                related_name='carts')
@@ -80,8 +97,10 @@ class Cart(models.Model):
                               on_delete=models.CASCADE,
                               related_name='carts')
 
-    class Meta():
+    class Meta:
         unique_together = ('recipe', 'owner')
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
 
     def __str__(self):
         return f'{self.owner}:{self.recipe}'
@@ -94,6 +113,10 @@ class FavoriteRecipes(models.Model):
                              on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Избранный рецепт'
+        verbose_name_plural = 'Избранные рецепты'
 
     def __str__(self):
         return f'Пользователь: {self.user} Избранный рецепт: {self.recipe}'

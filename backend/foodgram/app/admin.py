@@ -37,7 +37,8 @@ admin.site.register(Tag)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(IngredientAmount)
 admin.site.register(Cart)
+admin.site.register(User, UserAdmin)
 admin.site.register(Follow)
 admin.site.register(FavoriteRecipes)
-admin.site.register(User, UserAdmin)
+
 

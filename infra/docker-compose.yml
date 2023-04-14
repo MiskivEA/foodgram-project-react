@@ -1,12 +1,6 @@
 version: '3.3'
 services:
 
-  frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
-    volumes:
-      - ../frontend/:/app/result_build/
   nginx:
     image: nginx:1.19.3
     ports:
@@ -22,10 +16,19 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
+    restart: always
     volumes:
       - static_value:/foodgram/static/
       - media_value:/foodgram/media/
 
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - backend
 
 volumes:
   static_value:

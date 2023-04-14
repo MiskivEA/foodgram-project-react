@@ -1,4 +1,5 @@
 from django.http import JsonResponse, FileResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -19,9 +20,11 @@ class CustomPaginationClass(PageNumberPagination):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all().order_by('-pub_date')
+    queryset = Recipe.objects.all()
     permission_classes = permissions.AllowAny,
     pagination_class = CustomPaginationClass
+    filter_backends = DjangoFilterBackend,
+    filterset_fields = 'tag',
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
