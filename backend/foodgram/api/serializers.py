@@ -62,9 +62,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'image',
             'text',
             'cooking_time',
-            'pub_date'
         )
-
 
     def is_no_authenticated(self):
         return self.context['request'].user.is_anonymous

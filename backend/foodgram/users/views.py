@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -6,14 +7,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from djoser.views import UserViewSet as BaseUserViewSet
 
+from api.custom_utils import CustomPaginationClass
 from users.models import Follow
 from users.serializers import UserSerializer, UserSerializerSubscribe
 
 User = get_user_model()
-
-
-class CustomPaginationClass(PageNumberPagination):
-    page_size = 5
 
 
 class FollowViewSet(viewsets.ModelViewSet):
@@ -28,6 +26,8 @@ class FollowViewSet(viewsets.ModelViewSet):
 class UserViewSet(BaseUserViewSet):
     pagination_class = CustomPaginationClass
     serializer_class = UserSerializer
+    filter_backends = DjangoFilterBackend,
+    filterset_fields = 'is_subscribed',
 
     @action(methods=['post', 'delete'],
             detail=True)

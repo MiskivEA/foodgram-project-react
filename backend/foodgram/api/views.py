@@ -5,34 +5,28 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from api.custom_utils import CustomPaginationClass, FavoriteFilter
 from api.serializers import (RecipeSerializer,
                              TagSerializer,
                              FavoriteRecipesSerializer,
                              RecipeSerializerForCart, RecipeSerializerWrite, IngredientSerializer)
 
-from app.models import Recipe, Cart, FavoriteRecipes, Tag, Ingredient, IngredientAmount
+from app.models import Recipe, Cart, FavoriteRecipes, Tag, Ingredient
 from users.models import Follow
 from users.serializers import FollowSerializer
-
-
-class CustomPaginationClass(PageNumberPagination):
-    page_size = 6
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = permissions.AllowAny,
     pagination_class = CustomPaginationClass
-    filter_backends = DjangoFilterBackend,
+    filter_backends = DjangoFilterBackend, FavoriteFilter
     filterset_fields = 'tag',
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return RecipeSerializer
-        elif self.request.method in ['POST', 'PUT', 'PATCH']:
+        if self.action == 'create' or self.action == 'partial_update':
             return RecipeSerializerWrite
-        else:
-            return RecipeSerializer
+        return RecipeSerializer
 
     @action(methods=['post', 'delete'],
             detail=True)
