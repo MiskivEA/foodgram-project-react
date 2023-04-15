@@ -1,9 +1,7 @@
 from django.contrib.auth import get_user_model
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from djoser.views import UserViewSet as BaseUserViewSet
 
@@ -26,8 +24,6 @@ class FollowViewSet(viewsets.ModelViewSet):
 class UserViewSet(BaseUserViewSet):
     pagination_class = CustomPaginationClass
     serializer_class = UserSerializer
-    filter_backends = DjangoFilterBackend,
-    filterset_fields = 'is_subscribed',
 
     @action(methods=['post', 'delete'],
             detail=True)
@@ -44,6 +40,9 @@ class UserViewSet(BaseUserViewSet):
             return Response({'error': 'Ошибка подписки'}, status=status.HTTP_400_BAD_REQUEST)
 
         elif request.method == 'DELETE':
-            get_object_or_404(Follow, user=user, author=author).delete()
-            return Response({f'Вы отписались от пользователя {author.email}'}, status=status.HTTP_204_NO_CONTENT)
+            follow = Follow.objects.filter(user=user, author=author).exists()
+            if follow:
+                Follow.objects.get(user=user, author=author).delete()
+                return Response({f'Вы отписались от пользователя'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Вы не были подписаны'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

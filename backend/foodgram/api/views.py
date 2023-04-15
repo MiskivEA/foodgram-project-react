@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
-from api.custom_utils import CustomPaginationClass, FavoriteFilter
+from api.custom_utils import CustomPaginationClass, RecipeFilter
 from api.serializers import (RecipeSerializer,
                              TagSerializer,
                              FavoriteRecipesSerializer,
@@ -20,7 +20,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = permissions.AllowAny,
     pagination_class = CustomPaginationClass
-    filter_backends = FavoriteFilter,
+    filter_backends = RecipeFilter,
 
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'partial_update':

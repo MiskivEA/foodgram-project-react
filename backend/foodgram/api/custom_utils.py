@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 
-from app.models import Cart
 
 User = get_user_model()
 
@@ -11,7 +10,7 @@ class CustomPaginationClass(PageNumberPagination):
     page_size = 6
 
 
-class FavoriteFilter(filters.BaseFilterBackend):
+class RecipeFilter(filters.BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         is_favorited = request.query_params.get('is_favorited')
@@ -31,3 +30,4 @@ class FavoriteFilter(filters.BaseFilterBackend):
                 queryset = queryset.filter(tag__slug__in=tags)
         print(queryset)
         return queryset
+

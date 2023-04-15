@@ -10,7 +10,7 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static_back/
-      - media_value:/var/html/media/
+      - media_value:/var/html/media_back/
 
   backend:
     build:
