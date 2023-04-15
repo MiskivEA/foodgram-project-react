@@ -20,8 +20,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = permissions.AllowAny,
     pagination_class = CustomPaginationClass
-    filter_backends = DjangoFilterBackend, FavoriteFilter
-    filterset_fields = 'tag',
+    filter_backends = FavoriteFilter,
 
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'partial_update':
