@@ -13,6 +13,7 @@ class CustomPaginationClass(PageNumberPagination):
 class RecipeFilter(filters.BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
+        print(len(queryset))
         is_favorited = request.query_params.get('is_favorited')
         is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
         tags = request.query_params.getlist('tags')
@@ -25,9 +26,10 @@ class RecipeFilter(filters.BaseFilterBackend):
             new_q_favorite = request.user.favorite_recipes.all()
             queryset = [item.recipe for item in new_q_favorite]
 
-        if tags is not None:
-            if len(tags) > 0:
-                queryset = queryset.filter(tag__slug__in=tags)
+        if len(tags) > 0:
+            queryset = queryset.filter(tag__slug__in=tags)
+
         print(queryset)
+        print(len(queryset))
         return queryset
 
