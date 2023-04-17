@@ -28,10 +28,12 @@ odfpy==1.4.1
 openpyxl==3.1.2
 Pillow==9.5.0
 psycopg==3.1.8
+psycopg2-binary==2.8.6
 pycodestyle==2.9.1
 pycparser==2.21
 pyflakes==2.5.0
 PyJWT==2.6.0
+python-dotenv
 python3-openid==3.2.0
 pytz==2023.2
 PyYAML==6.0

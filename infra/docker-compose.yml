@@ -1,5 +1,11 @@
 version: '3.3'
 services:
+  database:
+    image: postgres:13.0-alpine
+    volumes:
+      - /var/lib/postgresql/data/
+    env_file:
+      - ./.env
 
   nginx:
     image: nginx:1.19.3
@@ -11,6 +17,8 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static_value:/var/html/static_back/
       - media_value:/var/html/media_back/
+    depends_on:
+      - backend
 
   backend:
     build:
@@ -20,6 +28,10 @@ services:
     volumes:
       - static_value:/foodgram/static/
       - media_value:/foodgram/media/
+    env_file:
+      - ./.env
+    depends_on:
+      - database
 
   frontend:
     build:

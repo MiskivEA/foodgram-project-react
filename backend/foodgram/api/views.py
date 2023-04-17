@@ -22,7 +22,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = RecipeFilter,
 
     def get_serializer_class(self):
-        if self.action == 'create' or self.action == 'partial_update':
+        if self.action in ['create', 'update', 'partial_update']:
             return RecipeSerializerWrite
         return RecipeSerializer
 
