@@ -1,6 +1,5 @@
-import rest_framework.pagination
 from django.contrib.auth import get_user_model
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
+from rest_framework.pagination import  LimitOffsetPagination
 from rest_framework import filters
 import urllib.parse
 
