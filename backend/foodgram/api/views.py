@@ -1,9 +1,7 @@
 from django.http import JsonResponse, FileResponse
-from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
-from rest_framework.filters import SearchFilter
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from api.custom_utils import CustomPaginationClass, RecipeFilter, RussianSearchFilter
