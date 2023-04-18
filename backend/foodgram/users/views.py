@@ -24,6 +24,7 @@ class FollowViewSet(viewsets.ModelViewSet):
 class UserViewSet(BaseUserViewSet):
     pagination_class = CustomPaginationClass
     serializer_class = UserSerializer
+    permission_classes = permissions.IsAuthenticatedOrReadOnly,
 
     @action(methods=['post', 'delete'],
             detail=True)

@@ -1,10 +1,11 @@
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse, FileResponse
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.custom_utils import CustomPaginationClass, RecipeFilter, RussianSearchFilter
+from api.custom_utils import CustomPaginationClass, RecipeFilter, RussianSearchFilter, IsAuthorOrReadOnly
 from api.serializers import (RecipeSerializer,
                              TagSerializer,
                              FavoriteRecipesSerializer,
@@ -14,10 +15,13 @@ from app.models import Recipe, Cart, FavoriteRecipes, Tag, Ingredient
 from users.models import Follow
 from users.serializers import FollowSerializer
 
+User = get_user_model()
+
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = permissions.AllowAny,
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsAuthorOrReadOnly)
     pagination_class = CustomPaginationClass
     filter_backends = RecipeFilter,
 
@@ -27,7 +31,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return RecipeSerializer
 
     @action(methods=['post', 'delete'],
-            detail=True)
+            detail=True,
+            permission_classes=[permissions.IsAuthenticated])
     def shopping_cart(self, request, pk):
         """Добавление рецепта в корзину"""
         user = request.user
@@ -48,7 +53,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 return Response({'errors': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'],
-            detail=False)
+            detail=False,
+            permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
         """Формирование списка покупок на основании
         рецептов в корзине и его скачивание"""
@@ -60,28 +66,28 @@ class RecipeViewSet(viewsets.ModelViewSet):
         counter = {}
         for recipe in recipes_list:
             ingredient_amount_list.append(recipe.ingredients.all())
-
         for ingredient_amount in ingredient_amount_list:
             for ingredient in ingredient_amount:
-                if ingredient in counter:
-                    counter[ingredient] += ingredient.amount
+                if ingredient.name in counter:
+                    counter[ingredient.name] += ingredient.amount
                 else:
-                    counter[ingredient] = ingredient.amount
+                    counter[ingredient.name] = ingredient.amount
 
         file_location = 'files/shopping_cart.txt'
         with open(file_location, 'w') as file:
-            for key, value in counter.items():
-                file.write(f'{key.name} --- {value} \n')
+            for ingredient, amount in counter.items():
+                file.write(f'{ingredient.name} [{ingredient.measurement_unit}] --- {amount} \n')
 
         with open(file_location, 'r') as f:
             file_data = f.read()
-            response = FileResponse(file_data)
+            response = FileResponse(file_data, content_type='txt')
             response['Content-Disposition'] = 'attachment; filename="my_shopping_cart.txt"'
 
         return response
 
     @action(methods=['post', 'delete'],
-            detail=True)
+            detail=True,
+            permission_classes=[permissions.IsAuthenticated])
     def favorite(self, request, pk):
         """Добавление рецепта в избранные рецепты"""
         user = request.user

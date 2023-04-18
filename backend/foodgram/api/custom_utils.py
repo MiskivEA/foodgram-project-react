@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework.pagination import  LimitOffsetPagination
-from rest_framework import filters
+from rest_framework import filters, permissions
 import urllib.parse
 
 User = get_user_model()
@@ -52,3 +52,18 @@ class RussianSearchFilter(filters.BaseFilterBackend):
         decoded_param = urllib.parse.unquote(param)
         queryset = queryset.filter(name__startswith=decoded_param)
         return queryset
+
+
+class IsAuthorOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return bool(
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_authenticated
+        )
+
+    def has_object_permission(self, request, view, obj):
+        return bool(
+            request.method in permissions.SAFE_METHODS
+            or request.user == obj.author
+        )
