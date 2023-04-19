@@ -1,8 +1,9 @@
-from django.contrib.auth import get_user_model
 from djoser.serializers import SetPasswordSerializer as BaseSetPasswordSerializer
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from djoser.serializers import UserSerializer as BaseUserSerializer
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
+
 from users.models import Follow
 from app.models import Recipe
 
