@@ -19,7 +19,7 @@ et-xmlfile==1.1.0
 flake8==5.0.4
 gunicorn==20.0.4
 idna==3.4
-isort==5.12.0
+isort==5.7.0
 itypes==1.2.0
 Jinja2==3.1.2
 MarkupPy==1.14
