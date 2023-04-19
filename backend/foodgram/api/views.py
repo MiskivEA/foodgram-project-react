@@ -51,6 +51,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 return Response({'errors': f'{e}'},
                                 status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=['get'],
             detail=False,
