@@ -5,11 +5,13 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.custom_utils import CustomPaginationClass, RecipeFilter, RussianSearchFilter, IsAuthorOrReadOnly
+from api.custom_utils import (CustomPaginationClass, RecipeFilter,
+                              RussianSearchFilter, IsAuthorOrReadOnly)
 from api.serializers import (RecipeSerializer,
                              TagSerializer,
                              FavoriteRecipesSerializer,
-                             RecipeSerializerForCart, RecipeSerializerWrite, IngredientSerializer)
+                             RecipeSerializerForCart, RecipeSerializerWrite,
+                             IngredientSerializer)
 
 from app.models import Recipe, Cart, FavoriteRecipes, Tag, Ingredient
 from users.models import Follow
@@ -41,16 +43,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'POST':
             _, created = Cart.objects.get_or_create(recipe=recipe, owner=user)
             if not created:
-                return Response({'errors': 'Ошибка добавления в список покупок(уже добавлено)'},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'errors': 'Ошибка добавления в список покупок'},
+                    status=status.HTTP_400_BAD_REQUEST)
             serializer = RecipeSerializerForCart(recipe, many=False)
-            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+            return JsonResponse(serializer.data,
+                                status=status.HTTP_201_CREATED)
         elif request.method == 'DELETE':
             try:
                 Cart.objects.get(recipe=recipe, owner=user).delete()
                 return Response(status=status.HTTP_200_OK)
             except Exception as e:
-                return Response({'errors': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'errors': f'{e}'},
+                                status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'],
             detail=False,
@@ -72,16 +77,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     counter[ingredient.name] += ingredient.amount
                 else:
                     counter[ingredient.name] = ingredient.amount
-
-        file_location = 'files/shopping_cart.txt'
+        file_name = 'shopping_cart.txt'
+        file_location = f'files/{file_name}'
         with open(file_location, 'w') as file:
             for ingredient, amount in counter.items():
-                file.write(f'{ingredient.name} [{ingredient.measurement_unit}] --- {amount} \n')
+                file.write(
+                    f'{ingredient.name} '
+                    f'[{ingredient.measurement_unit}] --- {amount} \n')
 
         with open(file_location, 'r') as f:
             file_data = f.read()
-            response = FileResponse(file_data, content_type='txt')
-            response['Content-Disposition'] = 'attachment; filename="my_shopping_cart.txt"'
+            response = FileResponse(file_data, content_type='text')
+            response[
+                'Content-Disposition'] = f'attachment; filename={file_name}'
 
         return response
 
@@ -101,17 +109,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 recipe.save()
 
                 serializer = RecipeSerializerForCart(recipe)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response({'error': 'The Recipe is already in your favorites list'})
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            return Response(
+                {'error': 'The Recipe is already in your favorites list'})
         elif request.method == 'DELETE':
             try:
                 FavoriteRecipes.objects.get(user=user, recipe=recipe).delete()
                 count = FavoriteRecipes.objects.filter(recipe=recipe).count()
                 recipe.how_mach_time_add_to_favorite = count
                 recipe.save()
-                return Response(status.HTTP_200_OK)
+                return Response(status.HTTP_204_NO_CONTENT)
             except Exception as e:
-                return Response({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': f'{e}'},
+                                status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 

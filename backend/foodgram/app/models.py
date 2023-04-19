@@ -75,7 +75,9 @@ class Ingredient(models.Model):
 class IngredientAmount(models.Model):
     """Ингридиент
     Название и количество в рецепте"""
-    name = models.ForeignKey(Ingredient, on_delete=models.CASCADE, related_name='ingredients')
+    name = models.ForeignKey(Ingredient,
+                             on_delete=models.CASCADE,
+                             related_name='ingredients')
     amount = models.IntegerField()
 
     class Meta:

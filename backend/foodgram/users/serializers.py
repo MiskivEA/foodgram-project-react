@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
-from djoser.serializers import (UserSerializer as BaseUserSerializer,
-                                UserCreateSerializer as BaseUserCreateSerializer,
-                                SetPasswordSerializer as BaseSetPasswordSerializer,
-                                )
+from djoser.serializers import (
+    UserSerializer as BaseUserSerializer,
+    UserCreateSerializer as BaseUserCreateSerializer,
+    SetPasswordSerializer as BaseSetPasswordSerializer,
+)
 
 from app.models import Recipe
 from users.models import Follow
@@ -16,7 +17,8 @@ class UserSerializer(BaseUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta(BaseUserSerializer.Meta):
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
+        fields = ('email', 'id', 'username',
+                  'first_name', 'last_name', 'is_subscribed')
 
     def get_is_subscribed(self, obj):
         current_user = self.context.get('request').user
@@ -25,10 +27,10 @@ class UserSerializer(BaseUserSerializer):
         return Follow.objects.filter(user=current_user, author=obj).exists()
 
 
-
 class UserCreateSerializer(BaseUserCreateSerializer):
     class Meta(BaseUserCreateSerializer.Meta):
-        fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password')
+        fields = ('id', 'email', 'username',
+                  'first_name', 'last_name', 'password')
 
 
 class RecipeSerializerSubs(serializers.ModelSerializer):
@@ -49,7 +51,8 @@ class UserSerializerSubscribe(UserSerializer):
     recipes = RecipeSerializerSubs(read_only=True, many=True)
 
     class Meta(UserSerializer.Meta):
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'recipes', 'recipe_count')
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipe_count')
 
     def get_recipe_count(self, obj):
         return obj.recipes.all().count()

@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from rest_framework.pagination import  LimitOffsetPagination
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework import filters, permissions
 import urllib.parse
 

@@ -3,7 +3,8 @@ from drf_extra_fields.fields import Base64ImageField
 
 from rest_framework import serializers
 
-from app.models import Recipe, Tag, Ingredient, Cart, FavoriteRecipes, IngredientAmount
+from app.models import (Recipe, Tag, Ingredient,
+                        Cart, FavoriteRecipes, IngredientAmount)
 
 from users.serializers import UserSerializer
 
@@ -36,7 +37,8 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
 
 
 class IngredientAmountSerializerWrite(IngredientAmountSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(), source='name')
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all(),
+                                            source='name')
 
     class Meta(IngredientAmountSerializer.Meta):
         fields = ('id', 'amount')
@@ -73,7 +75,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         if self.is_no_authenticated():
             return False
-        return FavoriteRecipes.objects.filter(user=self.get_user(), recipe=obj).exists()
+        return FavoriteRecipes.objects.filter(user=self.get_user(),
+                                              recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
         if self.is_no_authenticated():
@@ -83,7 +86,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class RecipeSerializerWrite(serializers.ModelSerializer):
     ingredients = IngredientAmountSerializerWrite(many=True)
-    tags = serializers.PrimaryKeyRelatedField(many=True, source='tag', queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(many=True, source='tag',
+                                              queryset=Tag.objects.all())
     image = Base64ImageField()
 
     class Meta:
@@ -134,7 +138,8 @@ class RecipeSerializerWrite(serializers.ModelSerializer):
         recipe.image = validated_data.get('image', recipe.image)
         recipe.name = validated_data.get('name', recipe.name)
         recipe.text = validated_data.get('text', recipe.text)
-        recipe.cooking_time = validated_data.get('cooking_time', recipe.cooking_time)
+        recipe.cooking_time = validated_data.get('cooking_time',
+                                                 recipe.cooking_time)
         recipe.save()
         return recipe
 
