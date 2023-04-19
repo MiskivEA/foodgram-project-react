@@ -43,7 +43,7 @@ class UserViewSet(BaseUserViewSet):
             return Response({'error': 'Ошибка подписки'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             follow = Follow.objects.filter(user=user, author=author).exists()
             if follow:
                 Follow.objects.get(user=user, author=author).delete()

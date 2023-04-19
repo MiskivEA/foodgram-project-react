@@ -51,8 +51,7 @@ class RussianSearchFilter(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         param = request.query_params.get('name')
         decoded_param = urllib.parse.unquote(param)
-        queryset = queryset.filter(name__startswith=decoded_param)
-        return queryset
+        return queryset.filter(name__startswith=decoded_param)
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
