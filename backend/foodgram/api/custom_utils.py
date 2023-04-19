@@ -55,7 +55,7 @@ class RussianSearchFilter(filters.BaseFilterBackend):
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
-
+    """Дает права управления объектами только их владельцам"""
     def has_permission(self, request, view):
         return bool(
             request.method in permissions.SAFE_METHODS
