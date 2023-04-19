@@ -44,7 +44,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer = RecipeSerializerForCart(recipe, many=False)
             return JsonResponse(serializer.data,
                                 status=status.HTTP_201_CREATED)
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             try:
                 Cart.objects.get(recipe=recipe, owner=user).delete()
                 return Response(status=status.HTTP_200_OK)
@@ -73,6 +73,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     counter[ingredient.name] += ingredient.amount
                 else:
                     counter[ingredient.name] = ingredient.amount
+
         file_name = 'shopping_cart.txt'
         file_location = f'files/{file_name}'
         with open(file_location, 'w') as file:
@@ -109,7 +110,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_201_CREATED)
             return Response(
                 {'error': 'The Recipe is already in your favorites list'})
-        elif request.method == 'DELETE':
+        if request.method == 'DELETE':
             try:
                 FavoriteRecipes.objects.get(user=user, recipe=recipe).delete()
                 count = FavoriteRecipes.objects.filter(recipe=recipe).count()
