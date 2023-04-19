@@ -1,12 +1,9 @@
+from app.models import (Cart, FavoriteRecipes, Ingredient, IngredientAmount,
+                        Recipe, Tag)
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from import_export.admin import ImportExportActionModelAdmin
 from import_export import resources
-
-
-from app.models import (Recipe, Tag, Ingredient, Cart,
-                        FavoriteRecipes, IngredientAmount)
-
+from import_export.admin import ImportExportActionModelAdmin
 from users.models import Follow
 
 User = get_user_model()

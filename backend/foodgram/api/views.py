@@ -1,19 +1,14 @@
+from api.custom_utils import (CustomPaginationClass, IsAuthorOrReadOnly,
+                              RecipeFilter, RussianSearchFilter)
+from api.serializers import (FavoriteRecipesSerializer, IngredientSerializer,
+                             RecipeSerializer, RecipeSerializerForCart,
+                             RecipeSerializerWrite, TagSerializer)
+from app.models import Cart, FavoriteRecipes, Ingredient, Recipe, Tag
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse, FileResponse
-
-from rest_framework import viewsets, permissions, status
+from django.http import FileResponse, JsonResponse
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
-from api.custom_utils import (CustomPaginationClass, RecipeFilter,
-                              RussianSearchFilter, IsAuthorOrReadOnly)
-from api.serializers import (RecipeSerializer,
-                             TagSerializer,
-                             FavoriteRecipesSerializer,
-                             RecipeSerializerForCart, RecipeSerializerWrite,
-                             IngredientSerializer)
-
-from app.models import Recipe, Cart, FavoriteRecipes, Tag, Ingredient
 from users.models import Follow
 from users.serializers import FollowSerializer
 
