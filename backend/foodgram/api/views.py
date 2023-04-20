@@ -101,25 +101,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             favorite, is_created = FavoriteRecipes.objects.get_or_create(
                 user=user, recipe=recipe)
             if is_created:
-                count = FavoriteRecipes.objects.filter(recipe=recipe).count()
-                recipe.how_mach_time_add_to_favorite = count
-                recipe.save()
-
                 serializer = RecipeSerializerForCart(recipe)
                 return Response(serializer.data,
                                 status=status.HTTP_201_CREATED)
             return Response(
                 {'error': 'The Recipe is already in your favorites list'})
         if request.method == 'DELETE':
-            try:
-                FavoriteRecipes.objects.get(user=user, recipe=recipe).delete()
-                count = FavoriteRecipes.objects.filter(recipe=recipe).count()
-                recipe.how_mach_time_add_to_favorite = count
-                recipe.save()
-                return Response(status.HTTP_204_NO_CONTENT)
-            except Exception as e:
-                return Response({'error': f'{e}'},
-                                status=status.HTTP_400_BAD_REQUEST)
+            get_object_or_404(FavoriteRecipes, user=user, recipe=recipe).delete()
+            return Response(status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
