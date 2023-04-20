@@ -71,7 +71,7 @@ jobs:
             sudo docker-compose rm backend
             sudo docker-compose rm frontend
             pwd
-            cd FG
+            cd ~/FG
             touch .env
             sudo docker pull miskivea/foodgram_back:latest
             sudo docker pull miskivea/foodgram_front:latest
