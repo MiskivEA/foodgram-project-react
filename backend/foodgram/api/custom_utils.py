@@ -18,22 +18,30 @@ class RecipeFilter(filters.BaseFilterBackend):
     И еще по авторам"""
 
     def filter_queryset(self, request, queryset, view):
+        anon = request.user.is_anonymous
+
         is_favorited = request.query_params.get('is_favorited')
         is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
         tags = request.query_params.getlist('tags')
         author_id = request.query_params.get('author')
 
         if is_in_shopping_cart is not None:
-            user_cart = request.user.carts.all()
-            user_cart_recipes_ids = [item.recipe.id for item in user_cart]
-            queryset = queryset.filter(id__in=user_cart_recipes_ids)
+            if anon:
+                return None
+            user_cart = request.user.carts.select_related('recipe').all()
+            favorite_recipes_ids = [item.recipe.id for item in user_cart]
+            queryset = queryset.filter(id__in=favorite_recipes_ids)
 
         if is_favorited is not None:
-            favorites = request.user.favorite_recipes.all()
+            if anon:
+                return None
+            favorites = request.user.favorite_recipes.select_related('recipe').all()
             favorite_recipes_ids = [item.recipe.id for item in favorites]
             queryset = queryset.filter(id__in=favorite_recipes_ids)
 
         if author_id is not None:
+            if anon:
+                return None
             queryset = queryset.filter(author__id=author_id)
 
         if tags is not None:
