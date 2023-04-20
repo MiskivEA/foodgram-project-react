@@ -46,9 +46,9 @@ class RecipeFilter(filters.BaseFilterBackend):
 
         if tags is not None:
             if len(tags) > 0:
-                queryset = queryset.filter(tag__slug__in=tags)
+                queryset = queryset.filter(tags__slug__in=tags).distinct()
 
-        return queryset.distinct()
+        return queryset
 
 
 class RussianSearchFilter(filters.BaseFilterBackend):
@@ -58,8 +58,9 @@ class RussianSearchFilter(filters.BaseFilterBackend):
 
     def filter_queryset(self, request, queryset, view):
         param = request.query_params.get('name')
-        decoded_param = urllib.parse.unquote(param)
-        return queryset.filter(name__startswith=decoded_param)
-
+        if param is not None:
+            decoded_param = urllib.parse.unquote(param)
+            return queryset.filter(name__startswith=decoded_param)
+        return queryset
 
 

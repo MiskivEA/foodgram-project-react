@@ -3,17 +3,15 @@ from django.shortcuts import get_object_or_404
 from api.custom_utils import (CustomPaginationClass,
                               RecipeFilter, RussianSearchFilter)
 from api.permissions import IsAuthorOrReadOnly
-from api.serializers import (FavoriteRecipesSerializer, IngredientSerializer,
-                             RecipeSerializer, RecipeSerializerForCart,
-                             RecipeSerializerWrite, TagSerializer)
+from api.serializers import RecipeCreateUpdateSerializer, RecipeListSerializer, TagSerializer, IngredientSerializer, \
+    RecipeSerializerForCart
+
 from app.models import Cart, FavoriteRecipes, Ingredient, Recipe, Tag
 from django.contrib.auth import get_user_model
 from django.http import FileResponse, JsonResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from users.models import Follow
-from users.serializers import FollowSerializer
 
 
 User = get_user_model()
@@ -28,8 +26,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
-            return RecipeSerializerWrite
-        return RecipeSerializer
+            return RecipeCreateUpdateSerializer
+        return RecipeListSerializer
 
     @action(methods=['post', 'delete'],
             detail=True,
@@ -61,18 +59,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         рецептов в корзине и его скачивание"""
 
         user = request.user
-        user_cart_queryset = user.carts.all()
-        recipes_list = [cart.recipe for cart in user_cart_queryset]
-        ingredient_amount_list = []
-        counter = {}
-        for recipe in recipes_list:
-            ingredient_amount_list.append(recipe.ingredients.all())
-        for ingredient_amount in ingredient_amount_list:
-            for ingredient in ingredient_amount:
-                if ingredient.name in counter:
-                    counter[ingredient.name] += ingredient.amount
-                else:
-                    counter[ingredient.name] = ingredient.amount
+        user_cart_queryset = user.carts.select_related('recipe').all()
+
+
+
+
+
 
         file_name = 'shopping_cart.txt'
         file_location = f'files/{file_name}'
@@ -121,13 +113,3 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = RussianSearchFilter,
-
-
-class FollowViewSet(viewsets.ModelViewSet):
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
-
-
-class FavoriteRecipesViewSet(viewsets.ModelViewSet):
-    queryset = FavoriteRecipes.objects.all()
-    serializer_class = FavoriteRecipesSerializer
