@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 
 from api.custom_utils import (CustomPaginationClass,
@@ -6,7 +7,7 @@ from api.permissions import IsAuthorOrReadOnly
 from api.serializers import RecipeCreateUpdateSerializer, RecipeListSerializer, TagSerializer, IngredientSerializer, \
     RecipeSerializerForCart
 
-from app.models import Cart, FavoriteRecipes, Ingredient, Recipe, Tag
+from app.models import Cart, FavoriteRecipes, Ingredient, Recipe, Tag, RecipeIngredient
 from django.contrib.auth import get_user_model
 from django.http import FileResponse, JsonResponse
 from rest_framework import permissions, status, viewsets
@@ -59,20 +60,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
         рецептов в корзине и его скачивание"""
 
         user = request.user
-        user_cart_queryset = user.carts.select_related('recipe').all()
+        user_cart_queryset = user.carts.all()
+        recipes_list = [cart.recipe for cart in user_cart_queryset]
+        ingredient_amount_list = RecipeIngredient.objects.filter(
+            recipe__in=recipes_list).values('ingredient__name', 'ingredient__measurement_unit'
+                                            ).annotate(total=Sum('amount'))
+        print(ingredient_amount_list)
 
-
-
-
-
+        text = ''
+        for i in ingredient_amount_list:
+            text += (
+                f'{i["ingredient__name"]} - '
+                f'{i["total"]} '
+                f'({i["ingredient__measurement_unit"]}) \n'
+            )
 
         file_name = 'shopping_cart.txt'
         file_location = f'files/{file_name}'
         with open(file_location, 'w') as file:
-            for ingredient, amount in counter.items():
-                file.write(
-                    f'{ingredient.name} '
-                    f'[{ingredient.measurement_unit}] --- {amount} \n')
+            file.write(text)
 
         with open(file_location, 'r') as f:
             file_data = f.read()
