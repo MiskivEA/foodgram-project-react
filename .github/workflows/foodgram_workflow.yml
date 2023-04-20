@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_and_push_backend_image:
-    name: Push Docker image to Docker Hub
+    name: Push_backend_image
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -29,7 +29,7 @@ jobs:
           tags: miskivea/foodgram_back:latest
 
   build_and_push_frontend_image:
-    name: Push Docker image to Docker Hub
+    name: Push_frontend_image
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
