@@ -1,0 +1,46 @@
+version: '3.3'
+services:
+  db:
+    image: postgres:13.0-alpine
+    restart: always    
+    volumes:
+      - db_volume:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  nginx:
+    image: nginx:1.19.3
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+      - static_value:/var/html/static_back/
+      - media_value:/var/html/media_back/
+    depends_on:
+      - backend
+
+  backend:
+    image: miskivea/foodgram_back:latest
+    restart: always
+    volumes:
+      - static_value:/foodgram/static/
+      - media_value:/foodgram/media/
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+
+  frontend:
+    image: miskivea/foodgram_front:latest
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - backend
+
+volumes:
+  static_value:
+  media_value:
+  db_volume:
+

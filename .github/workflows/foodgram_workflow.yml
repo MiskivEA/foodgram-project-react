@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  build_and_push_to_docker_hub:
+  build_and_push_backend_image:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
@@ -26,4 +26,56 @@ jobs:
         with:
           context: backend/
           push: true
-          tags: miskivea/foodgram:latest
+          tags: miskivea/foodgram_back:latest
+
+  build_and_push_frontend_image:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to Docker
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          context: frontend/
+          push: true
+          tags: miskivea/foodgram_front:latest
+
+  deploy:
+    name: Pull image from Docker Hub to server and run project
+    runs-on: ubuntu-latest
+    needs: build_and_push_to_docker_hub
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo docker-compose stop
+            sudo docker-compose rm backend
+            sudo docker-compose rm frontend
+            rm .env
+            touch .env
+            sudo docker pull miskivea/foodgram_back:latest
+            sudo docker pull miskivea/foodgram_front:latest
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            sudo docker-compose up -d
