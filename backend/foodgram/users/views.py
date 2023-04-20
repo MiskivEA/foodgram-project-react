@@ -1,13 +1,13 @@
-from api.custom_utils import CustomPaginationClass
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as BaseUserViewSet
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+
+from api.custom_utils import CustomPaginationClass
 from users.models import Follow
 from users.serializers import UserSerializer, UserSerializerSubscribe
-
 
 User = get_user_model()
 

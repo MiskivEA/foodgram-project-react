@@ -1,7 +1,7 @@
 import urllib.parse
 
 from django.contrib.auth import get_user_model
-from rest_framework import filters, permissions
+from rest_framework import filters
 from rest_framework.pagination import LimitOffsetPagination
 
 User = get_user_model()
@@ -62,5 +62,3 @@ class RussianSearchFilter(filters.BaseFilterBackend):
             decoded_param = urllib.parse.unquote(param)
             return queryset.filter(name__startswith=decoded_param)
         return queryset
-
-
