@@ -1,5 +1,8 @@
-from api.custom_utils import (CustomPaginationClass, IsAuthorOrReadOnly,
+from django.shortcuts import get_object_or_404
+
+from api.custom_utils import (CustomPaginationClass,
                               RecipeFilter, RussianSearchFilter)
+from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (FavoriteRecipesSerializer, IngredientSerializer,
                              RecipeSerializer, RecipeSerializerForCart,
                              RecipeSerializerWrite, TagSerializer)
@@ -11,6 +14,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import Follow
 from users.serializers import FollowSerializer
+
 
 User = get_user_model()
 
@@ -45,12 +49,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.data,
                                 status=status.HTTP_201_CREATED)
         if request.method == 'DELETE':
-            try:
-                Cart.objects.get(recipe=recipe, owner=user).delete()
-                return Response(status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response({'errors': f'{e}'},
-                                status=status.HTTP_400_BAD_REQUEST)
+            get_object_or_404(Cart, recipe=recipe, owner=user).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=['get'],
