@@ -20,14 +20,15 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    # list_display = ['id', 'name', 'author', 'favorite_count']
+    list_display = ['id', 'name', 'author', 'favorite_count']
     list_filter = 'name', 'author'
     search_fields = 'name',
     inlines = [IngredientInLine]
-    # def favorite_count(self, obj):
-    #     if FavoriteRecipes.objects.filter(recipe=obj).exists():
-    #         return FavoriteRecipes.objects.filter(recipe=obj).count()
-    #     return 0
+
+    def favorite_count(self, obj):
+        if FavoriteRecipes.objects.filter(recipe=obj).exists():
+            return FavoriteRecipes.objects.filter(recipe=obj).count()
+        return 0
 
 
 class IngredientResource(resources.ModelResource):
