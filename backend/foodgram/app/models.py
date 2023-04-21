@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 
 User = get_user_model()
@@ -35,17 +35,15 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         through_fields=('recipe', 'ingredient'),
-        verbose_name='Ингредиенты',
-        blank=True)
+        verbose_name='Ингредиенты')
     tags = models.ManyToManyField('Tag',
-                                  verbose_name='Тег',
-                                  blank=True)
+                                  verbose_name='Тег')
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
         db_index=True
     )
-    cooking_time = models.PositiveIntegerField()
+    cooking_time = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
         ordering = ('-pub_date', )
@@ -58,7 +56,8 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     amount = models.PositiveIntegerField(
-        verbose_name='Количество'
+        verbose_name='Количество',
+        validators=[MinValueValidator(1)],
     )
     ingredient = models.ForeignKey(
         Ingredient,
@@ -89,7 +88,12 @@ class Cart(models.Model):
                               related_name='carts')
 
     class Meta:
-        unique_together = ('recipe', 'owner')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'owner'],
+                name='recipe_owner_unique'
+            )
+        ]
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
 
