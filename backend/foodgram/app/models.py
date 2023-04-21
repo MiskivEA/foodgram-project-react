@@ -110,6 +110,12 @@ class FavoriteRecipes(models.Model):
                                on_delete=models.CASCADE)
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'user'],
+                name='recipe_user_unique'
+            )
+        ]
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
 
