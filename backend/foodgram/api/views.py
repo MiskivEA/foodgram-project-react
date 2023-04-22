@@ -60,11 +60,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         рецептов в корзине и его скачивание"""
 
         user = request.user
-        user_cart_queryset = user.carts.all()
-        recipes_list = [cart.recipe for cart in user_cart_queryset]
         ingredient_amount_list = RecipeIngredient.objects.filter(
-            recipe__in=recipes_list).values('ingredient__name', 'ingredient__measurement_unit'
-                                            ).annotate(total=Sum('amount'))
+            recipe__carts__owner=user).values('ingredient__name', 'ingredient__measurement_unit'
+                                              ).annotate(total=Sum('amount'))
 
         text = ''
         for i in ingredient_amount_list:
