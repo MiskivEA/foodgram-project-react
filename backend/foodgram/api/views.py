@@ -6,7 +6,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from api.custom_utils import (CustomPaginationClass, RecipeFilter,
+from api.custom_utils import (LimitOffsetPagination, RecipeFilter,
                               RussianSearchFilter)
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (IngredientSerializer,
@@ -23,7 +23,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                           IsAuthorOrReadOnly)
-    pagination_class = CustomPaginationClass
+    pagination_class = LimitOffsetPagination
     filter_backends = RecipeFilter,
 
     def get_serializer_class(self):

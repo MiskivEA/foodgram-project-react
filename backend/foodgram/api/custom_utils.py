@@ -2,12 +2,12 @@ import urllib.parse
 
 from django.contrib.auth import get_user_model
 from rest_framework import filters
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import LimitOffsetPagination as Lop
 
 User = get_user_model()
 
 
-class CustomPaginationClass(LimitOffsetPagination):
+class LimitOffsetPagination(Lop):
     """Оставлю возможность настройки здесь """
     pass
 

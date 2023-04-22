@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from api.custom_utils import CustomPaginationClass
+from api.custom_utils import LimitOffsetPagination
 from users.models import Follow
 from users.serializers import UserSerializer, UserSerializerSubscribe
 
@@ -13,18 +13,30 @@ User = get_user_model()
 
 
 class FollowViewSet(viewsets.ModelViewSet):
-    pagination_class = CustomPaginationClass
+    pagination_class = LimitOffsetPagination
     serializer_class = UserSerializerSubscribe
 
     def get_queryset(self):
         follows = Follow.objects.filter(user=self.request.user)
-        return [follow.author for follow in follows]
+        return follows
 
 
 class UserViewSet(BaseUserViewSet):
-    pagination_class = CustomPaginationClass
+    pagination_class = LimitOffsetPagination
     serializer_class = UserSerializer
     permission_classes = permissions.IsAuthenticatedOrReadOnly,
+
+    @action(methods=['get'],
+            detail=False,
+            pagination_class=LimitOffsetPagination)
+    def subscriptions(self, request):
+        follows = Follow.objects.filter(user=request.user)
+        page = self.paginate_queryset(follows)
+        if page is not None:
+            serializer = UserSerializerSubscribe(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = UserSerializerSubscribe(follows, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['post', 'delete'],
             detail=True)

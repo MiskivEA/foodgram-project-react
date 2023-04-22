@@ -7,9 +7,9 @@ app_name = 'users'
 
 router_v1 = DefaultRouter()
 
-router_v1.register(r'users/subscriptions',
-                   FollowViewSet,
-                   basename='subscriptions')
+# router_v1.register(r'users/subscriptions',
+#                    FollowViewSet,
+#                    basename='subscriptions')
 router_v1.register(r'users', UserViewSet)
 
 

@@ -12,5 +12,4 @@ class RecipeFilter(filters.BaseFilterBackend):
         if is_subscribed is not None:
             queryset = queryset.filter()
 
-        print(queryset)
         return queryset
