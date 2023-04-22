@@ -51,7 +51,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'DELETE':
             get_object_or_404(Cart, recipe=recipe, owner=user).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(methods=['get'],
             detail=False,
@@ -66,7 +65,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredient_amount_list = RecipeIngredient.objects.filter(
             recipe__in=recipes_list).values('ingredient__name', 'ingredient__measurement_unit'
                                             ).annotate(total=Sum('amount'))
-        print(ingredient_amount_list)
 
         text = ''
         for i in ingredient_amount_list:
@@ -108,7 +106,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == 'DELETE':
             get_object_or_404(FavoriteRecipes, user=user, recipe=recipe).delete()
             return Response(status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TagViewSet(viewsets.ModelViewSet):

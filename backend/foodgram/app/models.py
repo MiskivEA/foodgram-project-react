@@ -107,7 +107,8 @@ class FavoriteRecipes(models.Model):
                              related_name='favorite_recipes',
                              on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe,
-                               on_delete=models.CASCADE)
+                               on_delete=models.CASCADE,
+                               related_name='favorite_recipes')
 
     class Meta:
         constraints = [
