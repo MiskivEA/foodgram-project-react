@@ -35,7 +35,9 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         through_fields=('recipe', 'ingredient'),
-        verbose_name='Ингредиенты')
+        verbose_name='Ингредиенты',
+
+    )
     tags = models.ManyToManyField('Tag',
                                   verbose_name='Тег')
     pub_date = models.DateTimeField(
@@ -62,12 +64,14 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        verbose_name='Ингредиент'
+        verbose_name='Ингредиент',
+        related_name='recipe_ingredients'
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        verbose_name='Рецепт'
+        verbose_name='Рецепт',
+        related_name='recipe_ingredients'
     )
 
     def __str__(self):

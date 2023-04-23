@@ -17,12 +17,10 @@ class TagSerializer(serializers.ModelSerializer):
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Отображение ингридиентов и кол-ва в рецептах"""
-    name = serializers.StringRelatedField(
-        source='ingredient.name'
-    )
-    measurement_unit = serializers.StringRelatedField(
-        source='ingredient.measurement_unit'
-    )
+    name = serializers.StringRelatedField(read_only=True,
+                                          source='ingredient.name')
+    measurement_unit = serializers.StringRelatedField(read_only=True,
+                                                      source='ingredient.measurement_unit')
     id = serializers.PrimaryKeyRelatedField(
         source='ingredient',
         queryset=Ingredient.objects.all()
@@ -36,7 +34,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeListSerializer(serializers.ModelSerializer):
     """Получение списка рецептов."""
 
-    ingredients = serializers.SerializerMethodField()
+    ingredients = RecipeIngredientSerializer(many=True, source='recipe_ingredients')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
@@ -67,11 +65,11 @@ class RecipeListSerializer(serializers.ModelSerializer):
             return False
         return Cart.objects.filter(owner=self.get_user(), recipe=obj).exists()
 
-    def get_ingredients(self, obj):
-        """Возвращает отдельный сериализатор."""
-        return RecipeIngredientSerializer(
-            RecipeIngredient.objects.filter(recipe=obj).all(), many=True
-        ).data
+    # def get_ingredients(self, obj):
+    #     """Возвращает отдельный сериализатор."""
+    #     return RecipeIngredientSerializer(
+    #         RecipeIngredient.objects.filter(recipe=obj).all(), many=True
+    #     ).data
 
 
 class IngredientCreateInRecipeSerializer(serializers.ModelSerializer):
