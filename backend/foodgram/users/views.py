@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as BaseUserViewSet
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -10,15 +10,6 @@ from users.models import Follow
 from users.serializers import UserSerializer, UserSerializerSubscribe
 
 User = get_user_model()
-
-
-class FollowViewSet(viewsets.ModelViewSet):
-    pagination_class = LimitOffsetPagination
-    serializer_class = UserSerializerSubscribe
-
-    def get_queryset(self):
-        follows = Follow.objects.filter(user=self.request.user)
-        return follows
 
 
 class UserViewSet(BaseUserViewSet):
@@ -33,9 +24,11 @@ class UserViewSet(BaseUserViewSet):
         follows = Follow.objects.filter(user=request.user)
         page = self.paginate_queryset(follows)
         if page is not None:
-            serializer = UserSerializerSubscribe(page, many=True, context={'request': request})
+            serializer = UserSerializerSubscribe(page, many=True,
+                                                 context={'request': request})
             return self.get_paginated_response(serializer.data)
-        serializer = UserSerializerSubscribe(follows, many=True, context={'request': request})
+        serializer = UserSerializerSubscribe(follows, many=True,
+                                             context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['post', 'delete'],

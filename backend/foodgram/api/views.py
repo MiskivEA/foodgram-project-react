@@ -21,8 +21,7 @@ User = get_user_model()
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsAuthorOrReadOnly)
+    permission_classes = IsAuthorOrReadOnly,
     pagination_class = LimitOffsetPagination
     filter_backends = RecipeFilter,
 
@@ -73,15 +72,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
 
         file_name = 'shopping_cart.txt'
-        file_location = f'files/{file_name}'
-        with open(file_location, 'w') as file:
-            file.write(text)
-
-        with open(file_location, 'r') as f:
-            file_data = f.read()
-            response = FileResponse(file_data, content_type='text')
-            response[
-                'Content-Disposition'] = f'attachment; filename={file_name}'
+        response = FileResponse(text, content_type='text/plain')
+        response['Content-Disposition'] = f'attachment; filename={file_name}'
 
         return response
 
