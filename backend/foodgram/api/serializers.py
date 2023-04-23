@@ -34,7 +34,8 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeListSerializer(serializers.ModelSerializer):
     """Получение списка рецептов."""
 
-    ingredients = RecipeIngredientSerializer(many=True, source='recipe_ingredients')
+    ingredients = RecipeIngredientSerializer(many=True,
+                                             source='recipe_ingredients')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
@@ -64,12 +65,6 @@ class RecipeListSerializer(serializers.ModelSerializer):
         if self.is_no_authenticated():
             return False
         return Cart.objects.filter(owner=self.get_user(), recipe=obj).exists()
-
-    # def get_ingredients(self, obj):
-    #     """Возвращает отдельный сериализатор."""
-    #     return RecipeIngredientSerializer(
-    #         RecipeIngredient.objects.filter(recipe=obj).all(), many=True
-    #     ).data
 
 
 class IngredientCreateInRecipeSerializer(serializers.ModelSerializer):
