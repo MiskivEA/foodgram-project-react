@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from api.custom_utils import LimitOffsetPagination
 from users.models import Follow
-from users.serializers import UserSerializer, UserSerializerSubscribe
+from users.serializers import UserSerializer, UserSerializerSubscribe, UserResponseSubscribe
 
 User = get_user_model()
 
@@ -37,8 +37,7 @@ class UserViewSet(BaseUserViewSet):
         user = request.user
         id_user_to_follow = kwargs['id']
         author = get_object_or_404(User, pk=id_user_to_follow)
-        serializer = UserSerializerSubscribe(author,
-                                             context={'request': request})
+        serializer = UserResponseSubscribe(author, context={'request': request})
 
         if request.method == 'POST':
             follow_obj, created = Follow.objects.get_or_create(user=user,

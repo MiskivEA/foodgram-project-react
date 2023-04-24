@@ -72,6 +72,35 @@ class UserSerializerSubscribe(UserSerializer):
         return Follow.objects.filter(user=current_user, author=obj.author).exists()
 
 
+class UserResponseSubscribe(UserSerializerSubscribe):
+    email = serializers.EmailField(read_only=True)
+    id = serializers.PrimaryKeyRelatedField(read_only=True)
+    username = serializers.StringRelatedField(read_only=True)
+    first_name = serializers.StringRelatedField(read_only=True)
+    last_name = serializers.StringRelatedField(read_only=True)
+    recipes = serializers.SerializerMethodField()
+    recipe_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta(UserSerializer.Meta):
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipe_count')
+
+    def get_recipe_count(self, obj):
+        return obj.recipes.all().count()
+
+    def get_recipes(self, obj):
+        recipes = obj.recipes.all()
+        serializer = RecipeSerializerSubs(recipes, many=True)
+        return serializer.data
+
+    def get_is_subscribed(self, obj):
+        current_user = self.context.get('request').user
+        if current_user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=current_user, author=obj).exists()
+
+
 class SetPasswordSerializer(BaseSetPasswordSerializer):
     class Meta:
         fields = ('new_password', 'current_password')
